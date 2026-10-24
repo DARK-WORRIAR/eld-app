@@ -92,6 +92,14 @@ export default function DailyLogSheet({ day, dayIndex, metadata, onDownloadPdf }
               <span className="log-sheet-card__field-val">70 Hr / 8 Day Property-Carrying</span>
             </div>
           </div>
+          {day.adverse_conditions_claimed && (
+            <div className="log-sheet-card__adverse-alert">
+              <span className="log-sheet-card__adverse-tag">49 CFR § 395.1(b)(1) Adverse Driving Exception</span>
+              <span className="log-sheet-card__adverse-reason">
+                {day.adverse_conditions_reason ? `Audit Justification: "${day.adverse_conditions_reason}"` : "Audit Justification: Adverse weather / unforeseen road condition"}
+              </span>
+            </div>
+          )}
         </div>
 
         <div className="log-sheet-card__actions">

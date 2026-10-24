@@ -130,6 +130,9 @@ class PlanTripView(APIView):
             if not start_dt:
                 start_dt = datetime.now().replace(minute=0, second=0, microsecond=0)
 
+            adverse_claimed = data.get("adverse_conditions_claimed", False)
+            adverse_reason = data.get("adverse_conditions_reason", "")
+
             timeline = simulate_trip(
                 leg1_miles=leg1["distance_miles"],
                 leg1_hours=leg1["duration_hours"],
@@ -137,9 +140,15 @@ class PlanTripView(APIView):
                 leg2_hours=leg2["duration_hours"],
                 current_cycle_used_hrs=data["current_cycle_used_hrs"],
                 start_time=start_dt,
+                adverse_conditions_claimed=adverse_claimed,
+                adverse_conditions_reason=adverse_reason,
             )
 
-            daily_logs = build_daily_logs(timeline)
+            daily_logs = build_daily_logs(
+                timeline,
+                adverse_conditions_claimed=adverse_claimed,
+                adverse_conditions_reason=adverse_reason,
+            )
             stops = build_stops(timeline)
 
             # Interpolate geographic coordinate along route polyline for each stop marker
@@ -168,6 +177,8 @@ class PlanTripView(APIView):
                     "truck_number": data.get("truck_number", "TRK-409"),
                     "dispatch_time": start_dt.isoformat(),
                     "regulations_standard": "49 CFR Part 395 Property-Carrying Driver Rules",
+                    "adverse_conditions_claimed": adverse_claimed,
+                    "adverse_conditions_reason": adverse_reason,
                 },
                 "locations": {
                     "current": current_pt,
@@ -192,7 +203,13 @@ class PlanTripView(APIView):
                     "total_stops_count": len(stops),
                     "cycle_used_prior_hrs": data["current_cycle_used_hrs"],
                     "cycle_available_prior_hrs": round(70.0 - data["current_cycle_used_hrs"], 2),
-                    "compliance_status": "Fully Compliant with FMCSA 49 CFR § 395",
+                    "compliance_status": (
+                        "Compliant under 49 CFR § 395.1(b)(1) Adverse Driving Conditions Exception"
+                        if adverse_claimed
+                        else "Fully Compliant with FMCSA 49 CFR § 395"
+                    ),
+                    "adverse_conditions_claimed": adverse_claimed,
+                    "adverse_conditions_reason": adverse_reason,
                     "fuel_economy": {
                         "average_mpg": 6.5,
                         "diesel_price_per_gal": 3.85,
@@ -213,6 +230,8 @@ class PlanTripView(APIView):
                 pickup_location=data["pickup_location"],
                 dropoff_location=data["dropoff_location"],
                 current_cycle_used_hrs=data["current_cycle_used_hrs"],
+                adverse_conditions_claimed=adverse_claimed,
+                adverse_conditions_reason=adverse_reason,
                 start_time=start_dt,
                 result_json=result,
             )

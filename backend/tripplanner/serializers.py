@@ -72,6 +72,19 @@ class TripInputSerializer(serializers.Serializer):
         default="TRK-409",
         trim_whitespace=True,
     )
+    adverse_conditions_claimed = serializers.BooleanField(
+        required=False,
+        default=False,
+        help_text="Claim 49 CFR § 395.1(b)(1) Adverse Driving Conditions exception (+2 hrs).",
+    )
+    adverse_conditions_reason = serializers.CharField(
+        max_length=255,
+        required=False,
+        allow_blank=True,
+        default="",
+        trim_whitespace=True,
+        help_text="Documented justification for claiming adverse driving conditions.",
+    )
 
     def validate(self, attrs):
         pickup = attrs.get("pickup_location", "").strip().lower()
@@ -105,6 +118,8 @@ class TripSummarySerializer(serializers.ModelSerializer):
             "dropoff_location",
             "current_cycle_used_hrs",
             "start_time",
+            "adverse_conditions_claimed",
+            "adverse_conditions_reason",
             "total_distance_miles",
             "total_days",
             "created_at",

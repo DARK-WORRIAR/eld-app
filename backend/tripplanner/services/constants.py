@@ -37,6 +37,11 @@ HOS_CYCLE_LIMIT_HOURS: float = 70.0
 # Ref: 49 CFR § 395.3(d)
 HOS_CYCLE_RESTART_HOURS: float = 34.0
 
+# Adverse Driving Conditions Exception Extension: allows up to 2 additional hours
+# of driving time and extends the duty window by up to 2 hours.
+# Ref: 49 CFR § 395.1(b)(1)
+HOS_ADVERSE_DRIVING_EXTENSION_HOURS: float = 2.0
+
 
 # ==============================================================================
 # Standard Operational Assumptions & Fleet Defaults

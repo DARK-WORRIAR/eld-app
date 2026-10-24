@@ -1630,3 +1630,114 @@
     margin: 0 0 20px 0 !important;
   }
 }
+
+/* ------------------------------------------------------------------------------
+   12. Adverse Driving Conditions Exception (49 CFR § 395.1(b))
+   ------------------------------------------------------------------------------ */
+
+.trip-form__adverse-card {
+  margin-top: 14px;
+  padding: 12px 14px;
+  background-color: rgba(245, 158, 11, 0.05);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  border-radius: var(--radius-md);
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.trip-form__adverse-card:hover {
+  background-color: rgba(245, 158, 11, 0.08);
+  border-color: rgba(245, 158, 11, 0.4);
+}
+
+.trip-form__checkbox-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.trip-form__checkbox {
+  margin-top: 3px;
+  width: 16px;
+  height: 16px;
+  accent-color: var(--amber);
+  cursor: pointer;
+}
+
+.trip-form__checkbox-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.trip-form__checkbox-text strong {
+  font-size: 13px;
+  color: #fbbf24;
+  font-weight: 600;
+}
+
+.trip-form__checkbox-text small {
+  font-size: 11.5px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.trip-form__adverse-input-wrap {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px dashed rgba(245, 158, 11, 0.25);
+}
+
+.summary-dashboard__compliance-card--adverse {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(217, 119, 6, 0.08)) !important;
+  border-color: rgba(245, 158, 11, 0.45) !important;
+}
+
+.summary-dashboard__compliance-card--adverse .summary-dashboard__compliance-badge {
+  color: #fbbf24 !important;
+}
+
+.log-sheet-card__adverse-alert {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 12px;
+  background-color: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  border-radius: var(--radius-sm);
+}
+
+.log-sheet-card__adverse-tag {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: #fbbf24;
+  background-color: rgba(245, 158, 11, 0.2);
+  padding: 2px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.log-sheet-card__adverse-reason {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.navbar__status-dot--pulsing {
+  background-color: #f59e0b !important;
+  animation: pulse-dot 1.5s infinite ease-in-out;
+}
+
+@keyframes pulse-dot {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(0.9);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}

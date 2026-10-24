@@ -165,3 +165,69 @@ class HostSimulationTests(SimpleTestCase):
         self.assertEqual(pickup_stop["duration_hours"], 1.0)
         self.assertEqual(dropoff_stop["duration_hours"], 1.0)
 
+    def test_adverse_driving_conditions_allows_up_to_13_hours_driving(self):
+        """Under 49 CFR 395.1(b)(1), driving 12 hours does not trigger a 10-hour rest reset."""
+        timeline = simulate_trip(
+            leg1_miles=0.0,
+            leg1_hours=0.0,
+            leg2_miles=600.0,
+            leg2_hours=12.0,
+            current_cycle_used_hrs=0.0,
+            start_time=self.start_dt,
+            adverse_conditions_claimed=True,
+            adverse_conditions_reason="Severe unexpected blizzard on I-80",
+        )
+
+        resets = [
+            s for s in timeline
+            if s.status == DUTY_STATUS_OFF_DUTY and "10-Hour Daily Rest" in s.label
+        ]
+        # Under normal 11h rule, 12h driving would trigger a 10h reset.
+        # Under adverse conditions (13h limit), it does not trigger a reset.
+        self.assertEqual(len(resets), 0)
+
+    def test_adverse_driving_conditions_triggers_reset_at_13_hours(self):
+        """Under 49 CFR 395.1(b)(1), exceeding 13 driving hours triggers a mandatory 10-hour reset."""
+        timeline = simulate_trip(
+            leg1_miles=0.0,
+            leg1_hours=0.0,
+            leg2_miles=750.0,
+            leg2_hours=15.0,
+            current_cycle_used_hrs=0.0,
+            start_time=self.start_dt,
+            adverse_conditions_claimed=True,
+            adverse_conditions_reason="Unexpected multi-vehicle interstate pileup",
+        )
+
+        resets = [
+            s for s in timeline
+            if s.status == DUTY_STATUS_OFF_DUTY and "10-Hour Daily Rest" in s.label
+        ]
+        self.assertGreaterEqual(len(resets), 1)
+
+    def test_adverse_conditions_daily_logs_include_citation_and_audit_flag(self):
+        """Daily log sheets must carry adverse condition audit flags and regulatory citations."""
+        timeline = simulate_trip(
+            leg1_miles=0.0,
+            leg1_hours=0.0,
+            leg2_miles=600.0,
+            leg2_hours=12.0,
+            current_cycle_used_hrs=0.0,
+            start_time=self.start_dt,
+            adverse_conditions_claimed=True,
+            adverse_conditions_reason="Flash flooding closure on US-59",
+        )
+
+        daily_logs = build_daily_logs(
+            timeline,
+            adverse_conditions_claimed=True,
+            adverse_conditions_reason="Flash flooding closure on US-59",
+        )
+
+        self.assertTrue(daily_logs[0]["adverse_conditions_claimed"])
+        self.assertEqual(daily_logs[0]["adverse_conditions_reason"], "Flash flooding closure on US-59")
+        # Check that citation appears in remarks or segments
+        citations = [seg.get("citation", "") for seg in daily_logs[0]["segments"]]
+        self.assertTrue(any("395.1(b)(1)" in c for c in citations))
+
+

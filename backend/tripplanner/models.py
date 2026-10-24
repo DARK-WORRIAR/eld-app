@@ -48,6 +48,16 @@ class Trip(models.Model):
         blank=True,
         help_text="Scheduled departure date and time.",
     )
+    adverse_conditions_claimed = models.BooleanField(
+        default=False,
+        help_text="Whether 49 CFR § 395.1(b)(1) Adverse Driving Conditions exception was claimed.",
+    )
+    adverse_conditions_reason = models.CharField(
+        max_length=255,
+        blank=True,
+        default="",
+        help_text="Documented justification for claiming the adverse driving exception.",
+    )
 
     result_json = models.JSONField(
         help_text="Complete JSON payload containing routes, stops, and daily log grids.",

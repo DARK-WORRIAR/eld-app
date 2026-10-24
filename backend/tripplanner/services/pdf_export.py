@@ -68,6 +68,14 @@ def _draw_mcs59_page(
     c.setFont("Helvetica-Bold", 11)
     c.drawCentredString(PAGE_WIDTH - 90, PAGE_HEIGHT - 50, f"DAY {day_num} OF {trip_summary.get('total_days', 1)}")
 
+    # Adverse Driving Conditions Audit Badge
+    if day_data.get("adverse_conditions_claimed") or metadata.get("adverse_conditions_claimed"):
+        c.setFillColor(colors.HexColor("#d97706"))
+        c.rect(PAGE_WIDTH - 355, PAGE_HEIGHT - 62, 202, 26, fill=True, stroke=False)
+        c.setFillColor(colors.white)
+        c.setFont("Helvetica-Bold", 8.5)
+        c.drawCentredString(PAGE_WIDTH - 254, PAGE_HEIGHT - 50, "49 CFR § 395.1(b) ADVERSE EXCEPTION")
+
     # Carrier & Equipment Meta Box
     c.setFillColor(colors.HexColor("#f8fafc"))
     c.setStrokeColor(colors.HexColor("#cbd5e1"))

@@ -39,6 +39,8 @@ export default function TripForm({ onSubmit, loading }) {
     current_cycle_used_hrs: "12",
     departure_date: new Date().toISOString().slice(0, 10),
     departure_time: "07:00",
+    adverse_conditions_claimed: false,
+    adverse_conditions_reason: "",
     driver_name: "Marcus Vance",
     carrier_name: "Apex Logistics Freight, Inc.",
     truck_number: "TRK-840",
@@ -105,6 +107,10 @@ export default function TripForm({ onSubmit, loading }) {
       dropoff_location: dropoff,
       current_cycle_used_hrs: cycleHrs,
       start_time: startIso,
+      adverse_conditions_claimed: Boolean(form.adverse_conditions_claimed),
+      adverse_conditions_reason: form.adverse_conditions_claimed
+        ? (form.adverse_conditions_reason.trim() || "Unforeseen adverse weather/road condition")
+        : "",
       driver_name: form.driver_name.trim() || "Commercial Driver",
       carrier_name: form.carrier_name.trim() || "Apex Logistics Freight, Inc.",
       truck_number: form.truck_number.trim() || "TRK-409",
@@ -238,6 +244,37 @@ export default function TripForm({ onSubmit, loading }) {
             />
           </label>
         </div>
+      </div>
+
+      {/* Adverse Driving Conditions Exception (49 CFR § 395.1(b)) */}
+      <div className="trip-form__adverse-card">
+        <label className="trip-form__checkbox-label">
+          <input
+            type="checkbox"
+            className="trip-form__checkbox"
+            checked={form.adverse_conditions_claimed}
+            onChange={(e) => updateField("adverse_conditions_claimed", e.target.checked)}
+          />
+          <span className="trip-form__checkbox-text">
+            <strong>Claim Adverse Driving Conditions (+2 hrs)</strong>
+            <small>49 CFR § 395.1(b)(1) — Extends driving limit to 13h &amp; duty window to 16h for unforeseen road/weather events.</small>
+          </span>
+        </label>
+
+        {form.adverse_conditions_claimed && (
+          <div className="trip-form__adverse-input-wrap">
+            <label className="trip-form__field">
+              <span className="trip-form__label">Adverse Condition Reason (Required for DOT Audit)</span>
+              <input
+                type="text"
+                className="trip-form__input"
+                placeholder="e.g. Unforeseen blizzard highway closure on I-80"
+                value={form.adverse_conditions_reason}
+                onChange={(e) => updateField("adverse_conditions_reason", e.target.value)}
+              />
+            </label>
+          </div>
+        )}
       </div>
 
       {/* Collapsible Fleet Metadata */}

@@ -33,6 +33,7 @@ from .constants import (
     HOS_DAILY_RESET_HOURS,
     HOS_DUTY_WINDOW_HOURS,
     HOS_MAX_DRIVING_HOURS,
+    HOS_ADVERSE_DRIVING_EXTENSION_HOURS,
 )
 
 EPSILON = 1e-6
@@ -136,6 +137,9 @@ def _simulate_driving_chunk(
     chunk_miles: float,
     chunk_hours: float,
     label: str,
+    drive_limit: float = HOS_MAX_DRIVING_HOURS,
+    window_limit: float = HOS_DUTY_WINDOW_HOURS,
+    adverse_exception: bool = False,
 ) -> None:
     """
     Simulates driving over a distance chunk, inserting mandatory regulatory breaks,
@@ -148,19 +152,24 @@ def _simulate_driving_chunk(
     while remaining_hours > EPSILON:
         # Evaluate available capacity on all active HOS clocks
         avail_break = max(0.0, HOS_BREAK_THRESHOLD_HOURS - state.drive_since_break)
-        avail_drive = max(0.0, HOS_MAX_DRIVING_HOURS - state.drive_hours_today)
-        avail_window = max(0.0, HOS_DUTY_WINDOW_HOURS - state.duty_window_hours)
+        avail_drive = max(0.0, drive_limit - state.drive_hours_today)
+        avail_window = max(0.0, window_limit - state.duty_window_hours)
         avail_cycle = max(0.0, HOS_CYCLE_LIMIT_HOURS - state.cumulative_cycle_hours)
 
         # Drive for whichever limit expires first
         drivable_hours = min(remaining_hours, avail_break, avail_drive, avail_window, avail_cycle)
 
         if drivable_hours > EPSILON:
+            citation_str = (
+                "49 CFR § 395.1(b)(1) Adverse Driving Exception"
+                if adverse_exception and state.drive_hours_today + drivable_hours > HOS_MAX_DRIVING_HOURS
+                else "49 CFR § 395.3"
+            )
             state.record_event(
                 status=DUTY_STATUS_DRIVING,
                 label=label,
                 duration_hours=drivable_hours,
-                citation="49 CFR § 395.3",
+                citation=citation_str,
             )
             dist_covered = drivable_hours * speed_mph
             state.cumulative_miles += dist_covered
@@ -189,7 +198,7 @@ def _simulate_driving_chunk(
             # Under FMCSA rules, off-duty rest breaks do NOT pause the 14-hour duty window
             state.duty_window_hours += HOS_BREAK_DURATION_HOURS
 
-        # 2. 10-hour daily reset after 11 driving hours or 14-hour duty window
+        # 2. 10-hour daily reset after driving hours or duty window limit
         elif avail_drive <= EPSILON or avail_window <= EPSILON:
             state.record_event(
                 status=DUTY_STATUS_OFF_DUTY,
@@ -220,12 +229,13 @@ def _simulate_on_duty_stop(
     duration_hours: float,
     label: str,
     citation: Optional[str] = None,
+    window_limit: float = HOS_DUTY_WINDOW_HOURS,
 ) -> None:
     """
     Simulates a non-driving on-duty activity (loading, unloading, or vehicle inspection).
     Checks if a reset or restart is required before the on-duty task can begin.
     """
-    avail_window = max(0.0, HOS_DUTY_WINDOW_HOURS - state.duty_window_hours)
+    avail_window = max(0.0, window_limit - state.duty_window_hours)
     avail_cycle = max(0.0, HOS_CYCLE_LIMIT_HOURS - state.cumulative_cycle_hours)
 
     if avail_window <= EPSILON:
@@ -272,23 +282,23 @@ def simulate_trip(
     leg2_hours: float,
     current_cycle_used_hrs: float,
     start_time: Optional[datetime] = None,
+    adverse_conditions_claimed: bool = False,
+    adverse_conditions_reason: Optional[str] = None,
 ) -> List[Segment]:
     """
     Executes a complete FMCSA HOS forward simulation for a commercial freight haul.
-
-    Args:
-        leg1_miles: Origin to Shipper pickup mileage.
-        leg1_hours: Driving hours to pickup.
-        leg2_miles: Shipper to Receiver destination mileage.
-        leg2_hours: Driving hours to destination.
-        current_cycle_used_hrs: Cumulative duty hours logged in past 8 days (0-70).
-        start_time: Departure timestamp. Defaults to current system datetime.
-
-    Returns:
-        List of continuous Segment objects describing the complete journey timeline.
+    Supports 49 CFR § 395.1(b)(1) Adverse Driving Conditions (+2h driving and duty window extension).
     """
     if start_time is None:
         start_time = datetime.now().replace(minute=0, second=0, microsecond=0)
+
+    # 49 CFR § 395.1(b)(1) exception parameters
+    if adverse_conditions_claimed:
+        drive_limit = HOS_MAX_DRIVING_HOURS + HOS_ADVERSE_DRIVING_EXTENSION_HOURS
+        window_limit = HOS_DUTY_WINDOW_HOURS + HOS_ADVERSE_DRIVING_EXTENSION_HOURS
+    else:
+        drive_limit = HOS_MAX_DRIVING_HOURS
+        window_limit = HOS_DUTY_WINDOW_HOURS
 
     initial_cycle = min(max(0.0, current_cycle_used_hrs), HOS_CYCLE_LIMIT_HOURS)
     state = SimulatorState(now=start_time, cumulative_cycle_hours=initial_cycle)
@@ -298,13 +308,22 @@ def simulate_trip(
     # --------------------------------------------------------------------------
     leg1_chunks = _partition_leg_by_fuel_stops(leg1_miles, leg1_hours, state.cumulative_miles)
     for miles, hours, needs_fuel in leg1_chunks:
-        _simulate_driving_chunk(state, miles, hours, "En Route to Pickup Location")
+        _simulate_driving_chunk(
+            state,
+            miles,
+            hours,
+            "En Route to Pickup Location",
+            drive_limit=drive_limit,
+            window_limit=window_limit,
+            adverse_exception=adverse_conditions_claimed,
+        )
         if needs_fuel:
             _simulate_on_duty_stop(
                 state,
                 DEFAULT_FUEL_STOP_HOURS,
                 "Fuel & Walk-Around Inspection Stop",
                 citation="Fleet Policy",
+                window_limit=window_limit,
             )
 
     # Cargo Pickup / Loading dock time
@@ -313,6 +332,7 @@ def simulate_trip(
         DEFAULT_PICKUP_HOURS,
         "Shipper Facility — Cargo Loading & Paperwork",
         citation="49 CFR § 395.2",
+        window_limit=window_limit,
     )
 
     # --------------------------------------------------------------------------
@@ -320,13 +340,22 @@ def simulate_trip(
     # --------------------------------------------------------------------------
     leg2_chunks = _partition_leg_by_fuel_stops(leg2_miles, leg2_hours, state.cumulative_miles)
     for miles, hours, needs_fuel in leg2_chunks:
-        _simulate_driving_chunk(state, miles, hours, "En Route to Delivery Destination")
+        _simulate_driving_chunk(
+            state,
+            miles,
+            hours,
+            "En Route to Delivery Destination",
+            drive_limit=drive_limit,
+            window_limit=window_limit,
+            adverse_exception=adverse_conditions_claimed,
+        )
         if needs_fuel:
             _simulate_on_duty_stop(
                 state,
                 DEFAULT_FUEL_STOP_HOURS,
                 "Fuel & Walk-Around Inspection Stop",
                 citation="Fleet Policy",
+                window_limit=window_limit,
             )
 
     # Cargo Delivery / Unloading dock time
@@ -335,17 +364,20 @@ def simulate_trip(
         DEFAULT_DROPOFF_HOURS,
         "Receiver Facility — Cargo Unloading & Sign-off",
         citation="49 CFR § 395.2",
+        window_limit=window_limit,
     )
 
     return state.timeline
 
 
-def build_daily_logs(timeline: List[Segment]) -> List[Dict[str, Any]]:
+def build_daily_logs(
+    timeline: List[Segment],
+    adverse_conditions_claimed: bool = False,
+    adverse_conditions_reason: Optional[str] = None,
+) -> List[Dict[str, Any]]:
     """
     Partitions the continuous trip timeline into official FMCSA Form MCS-59
     calendar-day driver log sheets (00:00 to 24:00 midnight-to-midnight).
-
-    Guarantees every day sheet totals exactly 24.0 hours with no unassigned gaps.
     """
     if not timeline:
         return []
@@ -431,6 +463,18 @@ def build_daily_logs(timeline: List[Segment]) -> List[Dict[str, Any]]:
 
         # Compile chronological remarks for inspection review
         remarks = []
+        if adverse_conditions_claimed and day_idx == 1:
+            reason_txt = adverse_conditions_reason.strip() if adverse_conditions_reason else "Unforeseen Weather / Traffic Delay"
+            remarks.append({
+                "from_hr": 0.0,
+                "to_hr": 0.0,
+                "time_display": "EXCEPTION",
+                "duration_hours": 0.0,
+                "status": "on_duty",
+                "label": f"49 CFR § 395.1(b)(1) Adverse Driving Conditions Exception: {reason_txt}",
+                "citation": "49 CFR § 395.1(b)(1)",
+            })
+
         for s in day_segments:
             remarks.append({
                 "from_hr": s["from_hr"],
@@ -446,6 +490,8 @@ def build_daily_logs(timeline: List[Segment]) -> List[Dict[str, Any]]:
             "day_number": day_idx,
             "date": calendar_day_start.strftime("%Y-%m-%d"),
             "formatted_date": calendar_day_start.strftime("%A, %B %d, %Y"),
+            "adverse_conditions_claimed": adverse_conditions_claimed,
+            "adverse_conditions_reason": adverse_conditions_reason if adverse_conditions_claimed else None,
             "segments": day_segments,
             "totals": {k: round(v, 2) for k, v in totals.items()},
             "total_day_hours": round(total_day_hours, 2),

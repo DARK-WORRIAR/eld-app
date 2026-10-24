@@ -28,9 +28,12 @@ export default function Navbar({
       </div>
 
       <div className="navbar__actions">
-        <div className="navbar__status" title="Backend API Connectivity">
-          <span className={`navbar__status-dot ${apiHealthy ? "navbar__status-dot--live" : ""}`}></span>
-          <span className="navbar__status-text">{apiHealthy ? "Engine Online" : "Connecting..."}</span>
+        <div
+          className="navbar__status"
+          title={apiHealthy ? "Logistics & HOS engine operational" : "Backend server waking up from idle state (takes ~30-45s on Render free tier)"}
+        >
+          <span className={`navbar__status-dot ${apiHealthy ? "navbar__status-dot--live" : "navbar__status-dot--pulsing"}`}></span>
+          <span className="navbar__status-text">{apiHealthy ? "Engine Online" : "Waking Engine..."}</span>
         </div>
 
         <button

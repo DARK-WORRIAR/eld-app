@@ -56,15 +56,18 @@ export default function SummaryBar({ route, summary, locations, metadata }) {
           unit="hrs"
           subtext="Breaks &amp; 10h resets"
         />
-        <div className="summary-dashboard__compliance-card">
+        <div className={`summary-dashboard__compliance-card ${(summary.adverse_conditions_claimed || metadata?.adverse_conditions_claimed) ? "summary-dashboard__compliance-card--adverse" : ""}`}>
           <div className="summary-dashboard__compliance-badge">
-            <span className="summary-dashboard__check">✓</span> FMCSA COMPLIANT
+            <span className="summary-dashboard__check">{(summary.adverse_conditions_claimed || metadata?.adverse_conditions_claimed) ? "⚠️" : "✓"}</span>
+            {(summary.adverse_conditions_claimed || metadata?.adverse_conditions_claimed) ? "§ 395.1(b) ADVERSE EXCEPTION" : "FMCSA COMPLIANT"}
           </div>
           <div className="summary-dashboard__compliance-text">
-            49 CFR Part 395 Property Rules
+            {(summary.adverse_conditions_claimed || metadata?.adverse_conditions_claimed) ? "13h Drive / 16h Window Applied" : "49 CFR Part 395 Property Rules"}
           </div>
           <div className="summary-dashboard__compliance-sub">
-            All 11h, 14h, and 70h limits respected
+            {(summary.adverse_conditions_claimed || metadata?.adverse_conditions_claimed)
+              ? (summary.adverse_conditions_reason || metadata?.adverse_conditions_reason || "Unforeseen adverse condition logged for audit")
+              : "All 11h, 14h, and 70h limits respected"}
           </div>
         </div>
       </div>
