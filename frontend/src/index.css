@@ -1,0 +1,108 @@
+:root {
+  /* Color System */
+  --bg-base: #0a0e14;
+  --bg-surface: #101620;
+  --bg-card: #16202c;
+  --bg-card-raised: #1c2837;
+  --bg-hover: #223244;
+
+  --border-subtle: #243447;
+  --border-strong: #33475f;
+  --border-focus: #ffb627;
+
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --text-faint: #475569;
+
+  --amber: #ffb627;
+  --amber-dim: #b8811b;
+  --amber-hover: #ffc453;
+  --diesel: #ef4444;
+  --blue: #3b82f6;
+  --emerald: #10b981;
+  --purple: #8b5cf6;
+  --pink: #ec4899;
+
+  /* Form MCS-59 ELD Paper Colors */
+  --paper-bg: #f8f5ed;
+  --paper-card: #ffffff;
+  --paper-border: #cbd5e1;
+  --paper-ink: #0f172a;
+  --paper-muted: #64748b;
+
+  /* Typography */
+  --display: "Oswald", "Arial Narrow", -apple-system, sans-serif;
+  --body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --mono: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 10px 28px rgba(0, 0, 0, 0.45);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-base);
+  color: var(--text-primary);
+  font-family: var(--body);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button, input, select, textarea {
+  font-family: inherit;
+}
+
+::selection {
+  background: var(--amber);
+  color: #0f172a;
+}
+
+a {
+  color: var(--amber);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-surface);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-subtle);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--amber-dim);
+}

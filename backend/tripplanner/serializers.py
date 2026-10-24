@@ -1,0 +1,133 @@
+"""
+Data validation and serialization schemas for dispatch requests and trip records.
+"""
+
+from rest_framework import serializers
+from .models import Trip
+
+
+class TripInputSerializer(serializers.Serializer):
+    """
+    Validates payload parameters submitted for automated trip dispatch planning.
+    """
+
+    current_location = serializers.CharField(
+        max_length=255,
+        required=True,
+        trim_whitespace=True,
+        error_messages={
+            "blank": "Current location (origin) cannot be blank.",
+            "required": "Current location is required.",
+        },
+    )
+    pickup_location = serializers.CharField(
+        max_length=255,
+        required=True,
+        trim_whitespace=True,
+        error_messages={
+            "blank": "Pickup location cannot be blank.",
+            "required": "Pickup location is required.",
+        },
+    )
+    dropoff_location = serializers.CharField(
+        max_length=255,
+        required=True,
+        trim_whitespace=True,
+        error_messages={
+            "blank": "Drop-off location cannot be blank.",
+            "required": "Drop-off location is required.",
+        },
+    )
+    current_cycle_used_hrs = serializers.FloatField(
+        min_value=0.0,
+        max_value=70.0,
+        required=True,
+        error_messages={
+            "min_value": "Current cycle hours must be at least 0.0.",
+            "max_value": "Current cycle hours cannot exceed 70.0 under the 70-hour/8-day rule.",
+            "invalid": "Current cycle hours must be a valid number.",
+        },
+    )
+    start_time = serializers.DateTimeField(
+        required=False,
+        allow_null=True,
+        default=None,
+        help_text="Optional planned departure datetime (ISO-8601).",
+    )
+    driver_name = serializers.CharField(
+        max_length=120,
+        required=False,
+        default="Commercial Driver",
+        trim_whitespace=True,
+    )
+    carrier_name = serializers.CharField(
+        max_length=150,
+        required=False,
+        default="Apex Logistics Freight, Inc.",
+        trim_whitespace=True,
+    )
+    truck_number = serializers.CharField(
+        max_length=50,
+        required=False,
+        default="TRK-409",
+        trim_whitespace=True,
+    )
+
+    def validate(self, attrs):
+        pickup = attrs.get("pickup_location", "").strip().lower()
+        dropoff = attrs.get("dropoff_location", "").strip().lower()
+
+        if pickup and dropoff and pickup == dropoff:
+            raise serializers.ValidationError({
+                "dropoff_location": "Pickup and drop-off locations cannot be identical."
+            })
+
+        return attrs
+
+
+class TripSummarySerializer(serializers.ModelSerializer):
+    """
+    Lightweight summary representation for listing historical trips.
+    """
+
+    total_distance_miles = serializers.FloatField(read_only=True)
+    total_days = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = Trip
+        fields = [
+            "id",
+            "driver_name",
+            "carrier_name",
+            "truck_number",
+            "current_location",
+            "pickup_location",
+            "dropoff_location",
+            "current_cycle_used_hrs",
+            "start_time",
+            "total_distance_miles",
+            "total_days",
+            "created_at",
+        ]
+
+
+class TripDetailSerializer(serializers.ModelSerializer):
+    """
+    Full detail representation including full route coordinates, stops, and daily log grids.
+    """
+
+    class Meta:
+        model = Trip
+        fields = [
+            "id",
+            "driver_name",
+            "carrier_name",
+            "truck_number",
+            "current_location",
+            "pickup_location",
+            "dropoff_location",
+            "current_cycle_used_hrs",
+            "start_time",
+            "result_json",
+            "created_at",
+        ]
