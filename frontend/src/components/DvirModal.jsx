@@ -169,3 +169,4 @@ export default function DvirModal({ isOpen, onClose, dvirReports, metadata }) {
     </div>
   );
 }
+
