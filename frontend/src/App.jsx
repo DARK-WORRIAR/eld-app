@@ -6,6 +6,7 @@ import RouteMap from "./components/RouteMap.jsx";
 import StopsTimeline from "./components/StopsTimeline.jsx";
 import DailyLogSheet from "./components/DailyLogSheet.jsx";
 import TripHistoryModal from "./components/TripHistoryModal.jsx";
+import DvirModal from "./components/DvirModal.jsx";
 import { checkBackendHealth, downloadTripPdf, fetchRecentTrips, planTrip } from "./api.js";
 import "./App.css";
 
@@ -14,6 +15,7 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [isDvirOpen, setIsDvirOpen] = useState(false);
   const [recentTripsCount, setRecentTripsCount] = useState(0);
   const [apiHealthy, setApiHealthy] = useState(true);
   const [selectedDayFilter, setSelectedDayFilter] = useState("all");
@@ -85,6 +87,8 @@ export default function App() {
       <Navbar
         hasTripLoaded={Boolean(result)}
         onOpenHistory={() => setIsHistoryOpen(true)}
+        onOpenDvir={() => setIsDvirOpen(true)}
+        dvirCount={result?.dvir_reports?.length || 0}
         onPrintLogs={() => window.print()}
         onExportPdf={() => downloadTripPdf(result)}
         recentTripsCount={recentTripsCount}
@@ -152,6 +156,8 @@ export default function App() {
                 summary={result.summary}
                 locations={result.locations}
                 metadata={result.metadata}
+                dvirReports={result.dvir_reports}
+                onOpenDvir={() => setIsDvirOpen(true)}
               />
 
               <div className="no-print">
@@ -223,6 +229,13 @@ export default function App() {
         isOpen={isHistoryOpen}
         onClose={() => setIsHistoryOpen(false)}
         onSelectTrip={handleSelectFromHistory}
+      />
+
+      <DvirModal
+        isOpen={isDvirOpen}
+        onClose={() => setIsDvirOpen(false)}
+        dvirReports={result?.dvir_reports}
+        metadata={result?.metadata}
       />
     </div>
   );

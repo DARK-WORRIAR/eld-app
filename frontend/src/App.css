@@ -1741,3 +1741,362 @@
     transform: scale(1.2);
   }
 }
+
+/* ------------------------------------------------------------------------------
+   13. Driver Vehicle Inspection Reports (DVIR - 49 CFR Part 396)
+   ------------------------------------------------------------------------------ */
+
+.navbar__count-pill--cyan {
+  background-color: rgba(6, 182, 212, 0.2) !important;
+  color: #06b6d4 !important;
+  border-color: rgba(6, 182, 212, 0.4) !important;
+}
+
+.summary-dashboard__dvir-card {
+  background-color: var(--bg-surface);
+  border: 1px solid rgba(6, 182, 212, 0.3);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.summary-dashboard__dvir-card:hover {
+  border-color: #06b6d4;
+  background-color: rgba(6, 182, 212, 0.05);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(6, 182, 212, 0.15);
+}
+
+.summary-dashboard__dvir-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: #06b6d4;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.summary-dashboard__dvir-check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background-color: #06b6d4;
+  color: #0f172a;
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.summary-dashboard__dvir-text {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-top: 5px;
+}
+
+.summary-dashboard__dvir-sub {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 3px;
+}
+
+/* DVIR Modal Styles */
+.dvir-modal-card {
+  max-width: 860px !important;
+  width: 95%;
+}
+
+.dvir-modal__eyebrow {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: #06b6d4;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.dvir-modal__tabs {
+  display: flex;
+  gap: 8px;
+  padding: 12px 24px 0 24px;
+  border-bottom: 1px solid var(--border-subtle);
+  background-color: rgba(0, 0, 0, 0.15);
+  overflow-x: auto;
+}
+
+.dvir-modal__tab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 12.5px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.dvir-modal__tab:hover {
+  color: var(--text-primary);
+}
+
+.dvir-modal__tab--active {
+  color: #06b6d4 !important;
+  border-bottom-color: #06b6d4 !important;
+  background-color: rgba(6, 182, 212, 0.08);
+  border-radius: 6px 6px 0 0;
+}
+
+.dvir-modal__tab-id {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  opacity: 0.75;
+}
+
+.dvir-modal__body {
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.dvir-modal__meta-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  padding: 12px 16px;
+  background-color: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+
+.dvir-modal__meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.dvir-modal__meta-label {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.dvir-modal__meta-val {
+  font-size: 12.5px;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.dvir-modal__status-banner {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(5, 150, 105, 0.05));
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  border-radius: var(--radius-md);
+}
+
+.dvir-modal__status-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: var(--emerald);
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 900;
+  flex-shrink: 0;
+}
+
+.dvir-modal__status-info {
+  flex: 1;
+}
+
+.dvir-modal__status-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #34d399;
+  letter-spacing: 0.02em;
+  margin: 0 0 3px 0;
+}
+
+.dvir-modal__status-desc {
+  font-size: 11.5px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  margin: 0;
+}
+
+.dvir-modal__status-pill {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  background-color: rgba(16, 185, 129, 0.25);
+  color: #34d399;
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  white-space: nowrap;
+}
+
+.dvir-modal__checklist-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dvir-modal__section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.dvir-modal__section-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.dvir-modal__section-sub {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.dvir-modal__components-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+@media (max-width: 768px) {
+  .dvir-modal__components-grid {
+    grid-template-columns: 1fr;
+  }
+  .dvir-modal__meta-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.dvir-modal__comp-card {
+  padding: 10px 12px;
+  background-color: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.dvir-modal__comp-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dvir-modal__comp-cat {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.dvir-modal__comp-badge {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  font-weight: 700;
+  color: #34d399;
+  background-color: rgba(16, 185, 129, 0.15);
+  padding: 1px 6px;
+  border-radius: 3px;
+}
+
+.dvir-modal__comp-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.dvir-modal__comp-notes {
+  font-size: 10.5px;
+  color: var(--text-muted);
+}
+
+.dvir-modal__cert-box {
+  padding: 14px 16px;
+  background-color: rgba(6, 182, 212, 0.05);
+  border: 1px solid rgba(6, 182, 212, 0.25);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dvir-modal__cert-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #06b6d4;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.dvir-modal__cert-statement {
+  font-size: 11.5px;
+  color: var(--text-secondary);
+  font-style: italic;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.dvir-modal__signature-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 8px;
+  border-top: 1px dashed rgba(6, 182, 212, 0.2);
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.dvir-modal__sig-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  display: block;
+}
+
+.dvir-modal__sig-val {
+  font-size: 12px;
+  color: var(--text-primary);
+}
+
+.dvir-modal__sig-val--certified {
+  color: #34d399;
+  font-family: var(--mono);
+}
+
+.dvir-modal__sig-val--exempt {
+  color: var(--text-muted);
+  font-style: italic;
+}

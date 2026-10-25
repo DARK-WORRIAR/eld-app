@@ -15,6 +15,7 @@ from tripplanner.services.constants import (
 )
 from tripplanner.services.hos import (
     build_daily_logs,
+    build_dvir_reports,
     build_stops,
     simulate_trip,
 )
@@ -229,5 +230,67 @@ class HostSimulationTests(SimpleTestCase):
         # Check that citation appears in remarks or segments
         citations = [seg.get("citation", "") for seg in daily_logs[0]["segments"]]
         self.assertTrue(any("395.1(b)(1)" in c for c in citations))
+
+    def test_pre_trip_and_post_trip_dvir_scheduled(self):
+        """Dispatches must schedule pre-trip (396.13) and post-trip (396.11) vehicle inspections."""
+        timeline = simulate_trip(
+            leg1_miles=100.0,
+            leg1_hours=2.0,
+            leg2_miles=200.0,
+            leg2_hours=4.0,
+            current_cycle_used_hrs=10.0,
+            start_time=self.start_dt,
+        )
+
+        labels = [s.label for s in timeline]
+        self.assertIn("Pre-Trip Vehicle Inspection (DVIR)", labels)
+        self.assertIn("Post-Trip Vehicle Inspection (DVIR)", labels)
+
+        pre_trip = next(s for s in timeline if "Pre-Trip" in s.label)
+        post_trip = next(s for s in timeline if "Post-Trip" in s.label)
+
+        self.assertEqual(pre_trip.status, DUTY_STATUS_ON_DUTY_NOT_DRIVING)
+        self.assertEqual(post_trip.status, DUTY_STATUS_ON_DUTY_NOT_DRIVING)
+        self.assertIn("396.13", pre_trip.citation)
+        self.assertIn("396.11", post_trip.citation)
+
+    def test_build_dvir_reports_structure(self):
+        """DVIR generator must construct 12-item FMCSA compliant inspection checklists."""
+        timeline = simulate_trip(
+            leg1_miles=50.0,
+            leg1_hours=1.0,
+            leg2_miles=150.0,
+            leg2_hours=3.0,
+            current_cycle_used_hrs=5.0,
+            start_time=self.start_dt,
+        )
+
+        reports = build_dvir_reports(timeline)
+        self.assertGreaterEqual(len(reports), 2)  # At least Pre-trip + Post-trip
+
+        pre_rep = reports[0]
+        self.assertEqual(pre_rep["inspection_type"], "Pre-Trip Inspection")
+        self.assertTrue(pre_rep["safe_to_operate"])
+        self.assertEqual(pre_rep["overall_condition"], "SATISFACTORY")
+        self.assertEqual(len(pre_rep["components"]), 12)
+        self.assertIn("service_brakes", [c["id"] for c in pre_rep["components"]])
+        self.assertIn("Digitally Signed", pre_rep["driver_certification"]["signature_status"])
+
+    def test_dvir_stops_categorized(self):
+        """Inspection stops must be categorized cleanly for timeline and map visualization."""
+        timeline = simulate_trip(
+            leg1_miles=50.0,
+            leg1_hours=1.0,
+            leg2_miles=150.0,
+            leg2_hours=3.0,
+            current_cycle_used_hrs=5.0,
+            start_time=self.start_dt,
+        )
+
+        stops = build_stops(timeline)
+        types = [s["type"] for s in stops]
+        self.assertIn("pre_trip_inspection", types)
+        self.assertIn("post_trip_inspection", types)
+
 
 

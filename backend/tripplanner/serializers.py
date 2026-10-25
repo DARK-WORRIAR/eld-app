@@ -120,6 +120,7 @@ class TripSummarySerializer(serializers.ModelSerializer):
             "start_time",
             "adverse_conditions_claimed",
             "adverse_conditions_reason",
+            "dvir_inspections_logged",
             "total_distance_miles",
             "total_days",
             "created_at",

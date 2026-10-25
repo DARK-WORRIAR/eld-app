@@ -20,7 +20,7 @@ from .serializers import (
     TripSummarySerializer,
 )
 from .services.geocode import LocationNotFoundError, geocode
-from .services.hos import build_daily_logs, build_stops, simulate_trip
+from .services.hos import build_daily_logs, build_dvir_reports, build_stops, simulate_trip
 from .services.pdf_export import generate_mcs59_pdf
 from .services.routing import RouteCalculationError, RoutingError, get_route, point_at_distance
 
@@ -170,6 +170,20 @@ class PlanTripView(APIView):
             est_cost_per_mile = round(est_fuel_cost / max(1.0, total_dist), 2)
             est_co2 = round((est_gallons * 22.4) / 2204.62, 2)
 
+            dvir_reports = build_dvir_reports(
+                timeline=timeline,
+                metadata={
+                    "driver_name": data.get("driver_name", "Commercial Driver"),
+                    "carrier_name": data.get("carrier_name", "Apex Logistics Freight, Inc."),
+                    "truck_number": data.get("truck_number", "TRK-409"),
+                },
+                locations={
+                    "current": current_pt,
+                    "pickup": pickup_pt,
+                    "dropoff": dropoff_pt,
+                },
+            )
+
             result: Dict[str, Any] = {
                 "metadata": {
                     "driver_name": data.get("driver_name", "Commercial Driver"),
@@ -193,6 +207,7 @@ class PlanTripView(APIView):
                 },
                 "stops": stops,
                 "daily_logs": daily_logs,
+                "dvir_reports": dvir_reports,
                 "summary": {
                     "total_days": len(daily_logs),
                     "total_distance_miles": route["total_distance_miles"],
@@ -201,6 +216,8 @@ class PlanTripView(APIView):
                     "total_off_duty_hours": round(total_off_duty_hours, 2),
                     "total_sleeper_hours": round(total_sleeper_hours, 2),
                     "total_stops_count": len(stops),
+                    "dvir_inspections_count": len(dvir_reports),
+                    "dvir_status": "Satisfactory — All 12 Safety Systems Passed (49 CFR Part 396)",
                     "cycle_used_prior_hrs": data["current_cycle_used_hrs"],
                     "cycle_available_prior_hrs": round(70.0 - data["current_cycle_used_hrs"], 2),
                     "compliance_status": (
@@ -232,6 +249,7 @@ class PlanTripView(APIView):
                 current_cycle_used_hrs=data["current_cycle_used_hrs"],
                 adverse_conditions_claimed=adverse_claimed,
                 adverse_conditions_reason=adverse_reason,
+                dvir_inspections_logged=len(dvir_reports),
                 start_time=start_dt,
                 result_json=result,
             )

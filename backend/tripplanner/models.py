@@ -58,6 +58,10 @@ class Trip(models.Model):
         default="",
         help_text="Documented justification for claiming the adverse driving exception.",
     )
+    dvir_inspections_logged = models.IntegerField(
+        default=2,
+        help_text="Count of completed 49 CFR Part 396 Driver Vehicle Inspection Reports (Pre/Post-Trip).",
+    )
 
     result_json = models.JSONField(
         help_text="Complete JSON payload containing routes, stops, and daily log grids.",

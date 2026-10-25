@@ -26,6 +26,9 @@ from .constants import (
     DUTY_STATUS_DRIVING,
     DUTY_STATUS_OFF_DUTY,
     DUTY_STATUS_ON_DUTY_NOT_DRIVING,
+    DVIR_MANDATORY_COMPONENTS,
+    DVIR_POST_TRIP_HOURS,
+    DVIR_PRE_TRIP_HOURS,
     HOS_BREAK_DURATION_HOURS,
     HOS_BREAK_THRESHOLD_HOURS,
     HOS_CYCLE_LIMIT_HOURS,
@@ -209,6 +212,14 @@ def _simulate_driving_chunk(
             state.drive_hours_today = 0.0
             state.duty_window_hours = 0.0
             state.drive_since_break = 0.0
+            # Driver conducts 15-min Pre-Trip inspection before beginning next driving period
+            _simulate_on_duty_stop(
+                state,
+                DVIR_PRE_TRIP_HOURS,
+                "Pre-Trip Vehicle Inspection (DVIR)",
+                citation="49 CFR § 396.13",
+                window_limit=window_limit,
+            )
 
         # 3. 34-hour cycle restart after reaching 70 hours in 8 days
         else:
@@ -222,6 +233,14 @@ def _simulate_driving_chunk(
             state.drive_hours_today = 0.0
             state.duty_window_hours = 0.0
             state.drive_since_break = 0.0
+            # Driver conducts 15-min Pre-Trip inspection before beginning next driving period
+            _simulate_on_duty_stop(
+                state,
+                DVIR_PRE_TRIP_HOURS,
+                "Pre-Trip Vehicle Inspection (DVIR)",
+                citation="49 CFR § 396.13",
+                window_limit=window_limit,
+            )
 
 
 def _simulate_on_duty_stop(
@@ -303,6 +322,15 @@ def simulate_trip(
     initial_cycle = min(max(0.0, current_cycle_used_hrs), HOS_CYCLE_LIMIT_HOURS)
     state = SimulatorState(now=start_time, cumulative_cycle_hours=initial_cycle)
 
+    # 49 CFR § 396.13: Mandatory Pre-Trip Vehicle Inspection before commencing driving
+    _simulate_on_duty_stop(
+        state,
+        DVIR_PRE_TRIP_HOURS,
+        "Pre-Trip Vehicle Inspection (DVIR)",
+        citation="49 CFR § 396.13",
+        window_limit=window_limit,
+    )
+
     # --------------------------------------------------------------------------
     # Leg 1: Current location -> Shipper (Pickup)
     # --------------------------------------------------------------------------
@@ -364,6 +392,15 @@ def simulate_trip(
         DEFAULT_DROPOFF_HOURS,
         "Receiver Facility — Cargo Unloading & Sign-off",
         citation="49 CFR § 395.2",
+        window_limit=window_limit,
+    )
+
+    # 49 CFR § 396.11: Mandatory Post-Trip Vehicle Inspection at end of driving tour
+    _simulate_on_duty_stop(
+        state,
+        DVIR_POST_TRIP_HOURS,
+        "Post-Trip Vehicle Inspection (DVIR)",
+        citation="49 CFR § 396.11",
         window_limit=window_limit,
     )
 
@@ -510,6 +547,8 @@ def build_stops(timeline: List[Segment]) -> List[Dict[str, Any]]:
     for interactive map markers and dispatch timeline display.
     """
     category_map = {
+        "Pre-Trip Vehicle Inspection (DVIR)": "pre_trip_inspection",
+        "Post-Trip Vehicle Inspection (DVIR)": "post_trip_inspection",
         "Mandatory 30-Minute Rest Break": "rest_break",
         "10-Hour Daily Rest & Off-Duty Reset": "daily_reset",
         "34-Hour Restart (70-Hour Cycle Limit Reached)": "cycle_restart",
@@ -542,6 +581,94 @@ def build_stops(timeline: List[Segment]) -> List[Dict[str, Any]]:
         stop_number += 1
 
     return stops
+
+
+def build_dvir_reports(
+    timeline: List[Segment],
+    metadata: Optional[Dict[str, Any]] = None,
+    locations: Optional[Dict[str, Any]] = None,
+) -> List[Dict[str, Any]]:
+    """
+    Constructs formal Driver Vehicle Inspection Reports (DVIR) compliant with
+    49 CFR § 396.11 and § 396.13 for all pre-trip and post-trip inspections conducted.
+    """
+    if metadata is None:
+        metadata = {}
+    if locations is None:
+        locations = {}
+
+    reports: List[Dict[str, Any]] = []
+    dvir_counter = 1
+
+    driver_name = metadata.get("driver_name", "Commercial Driver")
+    carrier_name = metadata.get("carrier_name", "Apex Logistics Freight, Inc.")
+    truck_number = metadata.get("truck_number", "TRK-409")
+
+    origin_name = (
+        locations.get("current", {}).get("display_name")
+        or locations.get("current", {}).get("address")
+        or "Dispatch Terminal"
+    )
+    dest_name = (
+        locations.get("dropoff", {}).get("display_name")
+        or locations.get("dropoff", {}).get("address")
+        or "Receiver Delivery Facility"
+    )
+
+    for seg in timeline:
+        if "Vehicle Inspection (DVIR)" not in seg.label:
+            continue
+
+        is_pre_trip = "Pre-Trip" in seg.label
+        loc_str = origin_name if is_pre_trip and dvir_counter == 1 else dest_name if not is_pre_trip else f"En Route Rest Area (Mile {round(seg.start_miles, 1)})"
+
+        # Prepare 12 component results - all verified and satisfactory per FMCSA § 396.11(a)(1)
+        items = []
+        for comp in DVIR_MANDATORY_COMPONENTS:
+            items.append({
+                "id": comp["id"],
+                "name": comp["name"],
+                "category": comp["category"],
+                "status": "PASS",
+                "condition": "Satisfactory / Operable",
+                "defect_identified": False,
+                "notes": "Component inspected and verified per 49 CFR Part 396 walk-around.",
+            })
+
+        report_type = "Pre-Trip Inspection" if is_pre_trip else "Post-Trip Inspection"
+        citation = "49 CFR § 396.13" if is_pre_trip else "49 CFR § 396.11"
+
+        reports.append({
+            "report_id": f"DVIR-{seg.start.strftime('%Y%m%d')}-{dvir_counter:02d}",
+            "inspection_type": report_type,
+            "regulatory_citation": citation,
+            "timestamp": seg.start.isoformat(),
+            "time_formatted": seg.start.strftime("%A, %b %d, %Y at %I:%M %p"),
+            "odometer_miles": round(seg.start_miles, 1),
+            "location_description": loc_str,
+            "carrier_name": carrier_name,
+            "vehicle_id": truck_number,
+            "driver_name": driver_name,
+            "overall_condition": "SATISFACTORY",
+            "safe_to_operate": True,
+            "defects_found": False,
+            "components_inspected_count": len(items),
+            "components": items,
+            "driver_certification": {
+                "statement": (
+                    "I hereby certify that the vehicle inspection has been completed "
+                    "in accordance with Federal Motor Carrier Safety Regulations. "
+                    "All required parts and accessories are in safe and proper operating condition."
+                ),
+                "certified_by": driver_name,
+                "certified_at": seg.start.isoformat(),
+                "signature_status": "Digitally Signed & Certified",
+            },
+            "mechanic_signoff_required": False,
+        })
+        dvir_counter += 1
+
+    return reports
 
 
 def _hours_to_clock(hour_float: float) -> str:

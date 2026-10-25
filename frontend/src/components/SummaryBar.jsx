@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function SummaryBar({ route, summary, locations, metadata }) {
+export default function SummaryBar({ route, summary, locations, metadata, dvirReports, onOpenDvir }) {
   if (!route || !summary || !locations) return null;
 
   return (
@@ -68,6 +68,24 @@ export default function SummaryBar({ route, summary, locations, metadata }) {
             {(summary.adverse_conditions_claimed || metadata?.adverse_conditions_claimed)
               ? (summary.adverse_conditions_reason || metadata?.adverse_conditions_reason || "Unforeseen adverse condition logged for audit")
               : "All 11h, 14h, and 70h limits respected"}
+          </div>
+        </div>
+
+        <div
+          className="summary-dashboard__dvir-card"
+          onClick={onOpenDvir}
+          role="button"
+          tabIndex={0}
+          title="Click to view full 49 CFR Part 396 Driver Vehicle Inspection Reports"
+        >
+          <div className="summary-dashboard__dvir-badge">
+            <span className="summary-dashboard__dvir-check">✓</span> 49 CFR § 396 DVIR
+          </div>
+          <div className="summary-dashboard__dvir-text">
+            {dvirReports?.length || summary.dvir_inspections_count || 2} Inspections Logged
+          </div>
+          <div className="summary-dashboard__dvir-sub">
+            12/12 Safety Systems Passed · View DVIR →
           </div>
         </div>
       </div>

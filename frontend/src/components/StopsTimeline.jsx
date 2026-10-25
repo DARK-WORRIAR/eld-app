@@ -1,6 +1,8 @@
 import React from "react";
 
 const STOP_BADGES = {
+  pre_trip_inspection: { label: "Pre-Trip DVIR", color: "#06b6d4", bg: "rgba(6,182,212,0.12)" },
+  post_trip_inspection: { label: "Post-Trip DVIR", color: "#818cf8", bg: "rgba(129,140,248,0.12)" },
   pickup: { label: "Shipper Loading", color: "var(--amber)", bg: "rgba(255,182,39,0.12)" },
   dropoff: { label: "Receiver Unloading", color: "var(--emerald)", bg: "rgba(16,185,129,0.12)" },
   fuel: { label: "Fueling & Inspection", color: "var(--blue)", bg: "rgba(59,130,246,0.12)" },

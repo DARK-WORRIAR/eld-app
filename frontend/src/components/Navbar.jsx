@@ -3,6 +3,8 @@ import React from "react";
 export default function Navbar({
   hasTripLoaded,
   onOpenHistory,
+  onOpenDvir,
+  dvirCount = 0,
   onPrintLogs,
   onExportPdf,
   recentTripsCount,
@@ -52,6 +54,19 @@ export default function Navbar({
 
         {hasTripLoaded && (
           <>
+            <button
+              type="button"
+              className="navbar__btn navbar__btn--secondary"
+              onClick={onOpenDvir}
+              title="View 49 CFR Part 396 Driver Vehicle Inspection Reports (DVIR)"
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M9 11l3 3L22 4"></path>
+                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+              </svg>
+              DVIR Inspections
+              {dvirCount > 0 && <span className="navbar__count-pill navbar__count-pill--cyan">{dvirCount}</span>}
+            </button>
             <button
               type="button"
               className="navbar__btn navbar__btn--secondary"

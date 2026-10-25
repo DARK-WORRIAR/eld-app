@@ -44,6 +44,35 @@ HOS_ADVERSE_DRIVING_EXTENSION_HOURS: float = 2.0
 
 
 # ==============================================================================
+# FMCSA 49 CFR Part 396 - Inspection, Repair, and Maintenance (DVIR)
+# ==============================================================================
+
+# Standard duration for Driver Pre-Trip Vehicle Inspection (15 minutes)
+# Ref: 49 CFR § 396.13
+DVIR_PRE_TRIP_HOURS: float = 0.25
+
+# Standard duration for Driver Post-Trip Vehicle Inspection (15 minutes)
+# Ref: 49 CFR § 396.11
+DVIR_POST_TRIP_HOURS: float = 0.25
+
+# FMCSA 12 Mandatory Inspection Checklist Items under 49 CFR § 396.11(a)(1)
+DVIR_MANDATORY_COMPONENTS = [
+    {"id": "service_brakes", "name": "Service Brakes (including trailer connections)", "category": "Braking Systems"},
+    {"id": "parking_brake", "name": "Parking (Hand) Brake", "category": "Braking Systems"},
+    {"id": "steering", "name": "Steering Mechanism & Linkage", "category": "Steering"},
+    {"id": "lighting", "name": "Lighting Devices and Reflectors", "category": "Electrical & Lights"},
+    {"id": "tires", "name": "Tires (Tread Depth, Inflation, Sidewalls)", "category": "Wheels & Tires"},
+    {"id": "horn", "name": "Operational Horn", "category": "Cab Controls"},
+    {"id": "windshield_wipers", "name": "Windshield Wipers & Washers", "category": "Cab Controls"},
+    {"id": "mirrors", "name": "Rear Vision Mirrors", "category": "Cab Controls"},
+    {"id": "coupling_devices", "name": "Coupling Devices (Fifth Wheel, Kingpin, Pintle)", "category": "Coupling"},
+    {"id": "wheels_rims", "name": "Wheels, Rims, Lugs, and Fasteners", "category": "Wheels & Tires"},
+    {"id": "emergency_equipment", "name": "Emergency Equipment (Extinguisher, Triangles, Fuses)", "category": "Safety"},
+    {"id": "exhaust_suspension", "name": "Exhaust System & Suspension Components", "category": "Chassis"},
+]
+
+
+# ==============================================================================
 # Standard Operational Assumptions & Fleet Defaults
 # ==============================================================================
 
