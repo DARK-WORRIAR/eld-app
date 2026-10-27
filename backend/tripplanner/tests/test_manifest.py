@@ -138,3 +138,4 @@ class ManifestServiceTests(SimpleTestCase):
         self.assertIsInstance(pdf_bytes, bytes)
         self.assertTrue(len(pdf_bytes) > 1000)
         self.assertTrue(pdf_bytes.startswith(b"%PDF"))
+

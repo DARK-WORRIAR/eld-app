@@ -1423,12 +1423,76 @@
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background-color: rgba(0, 0, 0, 0.7);
+  background-color: rgba(0, 0, 0, 0.75);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 2000;
   padding: 20px;
+}
+
+.modal-card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg, 12px);
+  width: 100%;
+  max-height: calc(100vh - 40px);
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65);
+  overflow: hidden;
+  position: relative;
+}
+
+.modal-header {
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--bg-surface);
+  flex-shrink: 0;
+}
+
+.modal-title {
+  font-family: var(--display);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 3px 0 0 0;
+}
+
+.modal-close-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 18px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: color 0.15s, background-color 0.15s;
+}
+
+.modal-close-btn:hover {
+  color: var(--text-primary);
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.modal-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.modal-footer {
+  padding: 14px 24px;
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  background-color: var(--bg-surface);
+  flex-shrink: 0;
 }
 
 .modal-panel {
@@ -1607,8 +1671,12 @@
   .navbar,
   .app-sidebar,
   .route-map-card,
-  .stops-timeline-card,
-  .modal-backdrop {
+  .stops-timeline-card {
+    display: none !important;
+  }
+
+  /* Hide backdrop by default for normal log sheet printing */
+  body:not(.modal-open-bol):not(.modal-open-dvir) .modal-backdrop {
     display: none !important;
   }
 
@@ -1628,6 +1696,103 @@
     border: 1px solid #000000 !important;
     padding: 16px !important;
     margin: 0 0 20px 0 !important;
+  }
+
+  /* When printing Bill of Lading (BOL) specifically */
+  body.modal-open-bol .app-container,
+  body.modal-open-bol .app-main,
+  body.modal-open-bol .log-sheet-card,
+  body.modal-open-bol .modal-header,
+  body.modal-open-bol .modal-footer {
+    display: none !important;
+  }
+
+  body.modal-open-bol .modal-backdrop {
+    display: block !important;
+    position: static !important;
+    inset: auto !important;
+    background: #ffffff !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+  }
+
+  body.modal-open-bol .bol-modal-card {
+    display: block !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    max-height: none !important;
+    height: auto !important;
+    box-shadow: none !important;
+    border: none !important;
+    background: #ffffff !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+  }
+
+  body.modal-open-bol .bol-modal__body {
+    padding: 0 !important;
+    background: #ffffff !important;
+    overflow: visible !important;
+    display: block !important;
+  }
+
+  body.modal-open-bol .bol-document {
+    box-shadow: none !important;
+    border: 2px solid #000000 !important;
+    padding: 24px !important;
+    margin: 0 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  body.modal-open-bol .bol-table th {
+    background-color: #000000 !important;
+    color: #ffffff !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* When printing DVIR specifically */
+  body.modal-open-dvir .app-container,
+  body.modal-open-dvir .app-main,
+  body.modal-open-dvir .log-sheet-card,
+  body.modal-open-dvir .modal-header,
+  body.modal-open-dvir .modal-footer,
+  body.modal-open-dvir .dvir-modal__tabs {
+    display: none !important;
+  }
+
+  body.modal-open-dvir .modal-backdrop {
+    display: block !important;
+    position: static !important;
+    inset: auto !important;
+    background: #ffffff !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+  }
+
+  body.modal-open-dvir .dvir-modal-card {
+    display: block !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    max-height: none !important;
+    height: auto !important;
+    box-shadow: none !important;
+    border: 1px solid #000000 !important;
+    background: #ffffff !important;
+    padding: 20px !important;
+    margin: 0 !important;
+    overflow: visible !important;
+  }
+
+  body.modal-open-dvir .dvir-modal__body {
+    padding: 0 !important;
+    background: #ffffff !important;
+    overflow: visible !important;
+    display: block !important;
   }
 }
 
@@ -1813,6 +1978,10 @@
 .dvir-modal-card {
   max-width: 860px !important;
   width: 95%;
+  max-height: calc(100vh - 40px) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
 }
 
 .dvir-modal__eyebrow {
@@ -1831,6 +2000,7 @@
   border-bottom: 1px solid var(--border-subtle);
   background-color: rgba(0, 0, 0, 0.15);
   overflow-x: auto;
+  flex-shrink: 0;
 }
 
 .dvir-modal__tab {
@@ -1871,6 +2041,11 @@
   display: flex;
   flex-direction: column;
   gap: 18px;
+  overflow-y: auto !important;
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
 }
 
 .dvir-modal__meta-grid {
@@ -2155,8 +2330,12 @@
 
 /* BOL Document Modal Styles */
 .bol-modal-card {
-  max-width: 900px !important;
+  max-width: 920px !important;
   width: 95%;
+  max-height: calc(100vh - 40px) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
 }
 
 .bol-modal__eyebrow {
@@ -2170,7 +2349,34 @@
 
 .bol-modal__body {
   padding: 24px;
-  background-color: rgba(0, 0, 0, 0.2);
+  background-color: rgba(0, 0, 0, 0.35);
+  overflow-y: auto !important;
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.25) rgba(0, 0, 0, 0.2);
+}
+
+.bol-modal__body::-webkit-scrollbar,
+.dvir-modal__body::-webkit-scrollbar {
+  width: 8px;
+}
+
+.bol-modal__body::-webkit-scrollbar-track,
+.dvir-modal__body::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.bol-modal__body::-webkit-scrollbar-thumb,
+.dvir-modal__body::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 4px;
+}
+
+.bol-modal__body::-webkit-scrollbar-thumb:hover,
+.dvir-modal__body::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.4);
 }
 
 .bol-document {

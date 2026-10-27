@@ -12,6 +12,17 @@ export default function BolModal({ isOpen, onClose, bolDocument, metadata }) {
   const totals = doc.totals || {};
   const sigs = doc.signatures || {};
 
+  function handlePrint() {
+    document.body.classList.add("modal-open-bol");
+    const cleanup = () => {
+      document.body.classList.remove("modal-open-bol");
+      window.removeEventListener("afterprint", cleanup);
+    };
+    window.addEventListener("afterprint", cleanup);
+    window.print();
+    setTimeout(cleanup, 2500);
+  }
+
   return (
     <div className="modal-backdrop" onClick={onClose} role="dialog" aria-modal="true">
       <div className="modal-card bol-modal-card" onClick={(e) => e.stopPropagation()}>
@@ -204,7 +215,7 @@ export default function BolModal({ isOpen, onClose, bolDocument, metadata }) {
           <button
             type="button"
             className="navbar__btn navbar__btn--secondary"
-            onClick={() => window.print()}
+            onClick={handlePrint}
           >
             Print Bill of Lading
           </button>
@@ -216,3 +227,4 @@ export default function BolModal({ isOpen, onClose, bolDocument, metadata }) {
     </div>
   );
 }
+

@@ -6,6 +6,17 @@ export default function DvirModal({ isOpen, onClose, dvirReports, metadata }) {
   const [activeReportIdx, setActiveReportIdx] = useState(0);
   const currentReport = dvirReports[activeReportIdx] || dvirReports[0];
 
+  function handlePrint() {
+    document.body.classList.add("modal-open-dvir");
+    const cleanup = () => {
+      document.body.classList.remove("modal-open-dvir");
+      window.removeEventListener("afterprint", cleanup);
+    };
+    window.addEventListener("afterprint", cleanup);
+    window.print();
+    setTimeout(cleanup, 2500);
+  }
+
   return (
     <div className="modal-backdrop" onClick={onClose} role="dialog" aria-modal="true">
       <div className="modal-card dvir-modal-card" onClick={(e) => e.stopPropagation()}>
@@ -157,7 +168,7 @@ export default function DvirModal({ isOpen, onClose, dvirReports, metadata }) {
           <button
             type="button"
             className="navbar__btn navbar__btn--secondary"
-            onClick={() => window.print()}
+            onClick={handlePrint}
           >
             Print Inspection Report
           </button>
