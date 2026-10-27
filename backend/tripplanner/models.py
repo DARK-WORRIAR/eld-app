@@ -26,6 +26,32 @@ class Trip(models.Model):
         default="TRK-409",
         help_text="Commercial vehicle / tractor identification number.",
     )
+    trailer_number = models.CharField(
+        max_length=50,
+        default="TRL-9201",
+        help_text="Commercial semi-trailer unit number (FMCSA 49 CFR § 395.8(d)(11)).",
+    )
+    bol_number = models.CharField(
+        max_length=60,
+        blank=True,
+        default="",
+        help_text="Bill of Lading / Shipping Document Number (FMCSA 49 CFR § 395.8(d)(17)).",
+    )
+    commodity = models.CharField(
+        max_length=200,
+        default="General Freight & Dry Goods",
+        help_text="Cargo commodity description (FMCSA 49 CFR § 395.8(d)(17)).",
+    )
+    cargo_weight_lbs = models.IntegerField(
+        default=38000,
+        help_text="Total gross cargo weight in pounds (lbs).",
+    )
+    seal_number = models.CharField(
+        max_length=50,
+        blank=True,
+        default="SEAL-89104",
+        help_text="Security tamper-evident cargo seal number.",
+    )
 
     current_location = models.CharField(
         max_length=255,

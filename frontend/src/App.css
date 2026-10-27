@@ -2100,3 +2100,403 @@
   color: var(--text-muted);
   font-style: italic;
 }
+
+/* ------------------------------------------------------------------------------
+   14. Commercial Bill of Lading (BOL) & Cargo Manifest (49 CFR § 395.8(d)(17))
+   ------------------------------------------------------------------------------ */
+
+.summary-dashboard__bol-card {
+  background-color: var(--bg-surface);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.summary-dashboard__bol-card:hover {
+  border-color: #a78bfa;
+  background-color: rgba(139, 92, 246, 0.05);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.15);
+}
+
+.summary-dashboard__bol-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: #a78bfa;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.summary-dashboard__bol-icon {
+  font-size: 12px;
+}
+
+.summary-dashboard__bol-text {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-top: 5px;
+}
+
+.summary-dashboard__bol-sub {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 3px;
+}
+
+/* BOL Document Modal Styles */
+.bol-modal-card {
+  max-width: 900px !important;
+  width: 95%;
+}
+
+.bol-modal__eyebrow {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: #a78bfa;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.bol-modal__body {
+  padding: 24px;
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+.bol-document {
+  background-color: #ffffff;
+  color: #0f172a;
+  border-radius: 8px;
+  padding: 28px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+.bol-document__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding-bottom: 18px;
+  border-bottom: 2px solid #0f172a;
+  gap: 20px;
+}
+
+.bol-document__flag {
+  font-size: 10px;
+  font-weight: 800;
+  color: #b91c1c;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  display: block;
+}
+
+.bol-document__main-title {
+  font-size: 18px;
+  font-weight: 900;
+  letter-spacing: -0.01em;
+  color: #0f172a;
+  margin: 4px 0 2px 0;
+}
+
+.bol-document__statute {
+  font-size: 10.5px;
+  color: #64748b;
+  font-family: monospace;
+}
+
+.bol-document__barcode-block {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+}
+
+.bol-document__barcode-lines {
+  display: flex;
+  gap: 2px;
+  height: 24px;
+}
+
+.bol-document__barcode-lines span {
+  width: 2px;
+  height: 100%;
+  background-color: #0f172a;
+}
+
+.bol-document__barcode-lines span:nth-child(2n) {
+  width: 3px;
+}
+
+.bol-document__barcode-lines span:nth-child(3n) {
+  width: 1px;
+}
+
+.bol-document__bol-num {
+  font-family: monospace;
+  font-size: 14px;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: 0.08em;
+}
+
+.bol-document__issue-date {
+  font-size: 10.5px;
+  color: #64748b;
+}
+
+.bol-document__carrier-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  padding: 12px 14px;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  margin-top: 16px;
+}
+
+.bol-field-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  display: block;
+  letter-spacing: 0.03em;
+}
+
+.bol-field-val {
+  font-size: 12px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.bol-document__parties-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.bol-document__party-card {
+  padding: 14px;
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+}
+
+.bol-document__party-role {
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  color: #0284c7;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.bol-document__facility-name {
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 4px 0;
+}
+
+.bol-document__facility-addr {
+  font-size: 11.5px;
+  color: #475569;
+  line-height: 1.4;
+  margin: 0 0 10px 0;
+}
+
+.bol-document__party-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10.5px;
+  color: #64748b;
+  padding-top: 8px;
+  border-top: 1px dashed #e2e8f0;
+}
+
+.bol-document__seal-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background-color: #f0fdf4;
+  border: 1px solid #86efac;
+  border-radius: 6px;
+  margin-top: 16px;
+}
+
+.bol-document__seal-icon {
+  font-size: 16px;
+}
+
+.bol-document__seal-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.bol-document__seal-info strong {
+  font-size: 12px;
+  color: #166534;
+}
+
+.bol-document__seal-info span {
+  font-size: 11px;
+  color: #15803d;
+}
+
+.bol-document__seal-badge {
+  font-size: 9.5px;
+  font-weight: 800;
+  color: #166534;
+  background-color: #dcfce7;
+  padding: 3px 8px;
+  border-radius: 4px;
+  border: 1px solid #86efac;
+}
+
+.bol-document__table-wrap {
+  margin-top: 16px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.bol-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11.5px;
+}
+
+.bol-table th {
+  background-color: #0f172a;
+  color: #ffffff;
+  padding: 8px 10px;
+  font-weight: 700;
+  text-align: left;
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.bol-table td {
+  padding: 10px;
+  border-bottom: 1px solid #e2e8f0;
+  color: #1e293b;
+}
+
+.bol-table__commodity {
+  font-weight: 700;
+  color: #0f172a;
+  display: block;
+}
+
+.bol-table__subtext {
+  font-size: 10px;
+  color: #64748b;
+  display: block;
+}
+
+.bol-table tfoot td {
+  background-color: #f8fafc;
+  padding: 10px;
+  border-top: 2px solid #cbd5e1;
+}
+
+.bol-table__total-weight {
+  font-size: 13px;
+  color: #0f172a;
+}
+
+.bol-document__legal-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-top: 16px;
+  font-size: 10px;
+  line-height: 1.4;
+  color: #475569;
+}
+
+.bol-legal-title {
+  font-weight: 800;
+  color: #0f172a;
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 3px;
+}
+
+.bol-document__legal-section p {
+  margin: 0;
+}
+
+.bol-document__signatures-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid #cbd5e1;
+}
+
+.bol-sig-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.bol-sig-role {
+  font-size: 9.5px;
+  font-weight: 800;
+  color: #64748b;
+  text-transform: uppercase;
+}
+
+.bol-sig-line {
+  height: 36px;
+  border-bottom: 1px solid #0f172a;
+  display: flex;
+  align-items: flex-end;
+  padding-bottom: 2px;
+}
+
+.bol-sig-name {
+  font-family: "Brush Script MT", cursive, sans-serif;
+  font-size: 18px;
+  color: #1e3a8a;
+}
+
+.bol-sig-line--pending .bol-sig-name {
+  font-family: inherit;
+  font-size: 10.5px;
+  color: #94a3b8;
+  font-style: italic;
+}
+
+.bol-sig-caption {
+  font-size: 9.5px;
+  color: #64748b;
+}
+
+@media (max-width: 768px) {
+  .bol-document__carrier-strip,
+  .bol-document__parties-grid,
+  .bol-document__legal-section,
+  .bol-document__signatures-grid {
+    grid-template-columns: 1fr;
+  }
+}

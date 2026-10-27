@@ -84,8 +84,22 @@ export default function DailyLogSheet({ day, dayIndex, metadata, onDownloadPdf }
               <span className="log-sheet-card__field-val">{metadata?.truck_number || "TRK-409"}</span>
             </div>
             <div>
+              <span className="log-sheet-card__field-label">Trailer Unit #:</span>
+              <span className="log-sheet-card__field-val">{metadata?.trailer_number || "TRL-9201"}</span>
+            </div>
+            <div>
               <span className="log-sheet-card__field-label">Log Date:</span>
               <span className="log-sheet-card__field-val">{day.formatted_date || day.date}</span>
+            </div>
+            <div>
+              <span className="log-sheet-card__field-label">Shipping Doc (BOL) #:</span>
+              <span className="log-sheet-card__field-val">{metadata?.bol_number || "BOL-2026-9041"}</span>
+            </div>
+            <div>
+              <span className="log-sheet-card__field-label">Commodity &amp; Cargo:</span>
+              <span className="log-sheet-card__field-val">
+                {metadata?.commodity || "General Freight"} ({metadata?.cargo_weight_lbs ? `${Number(metadata.cargo_weight_lbs).toLocaleString()} lbs` : "38,000 lbs"})
+              </span>
             </div>
             <div>
               <span className="log-sheet-card__field-label">Cycle Standard:</span>

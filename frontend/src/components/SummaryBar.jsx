@@ -1,6 +1,15 @@
 import React from "react";
 
-export default function SummaryBar({ route, summary, locations, metadata, dvirReports, onOpenDvir }) {
+export default function SummaryBar({
+  route,
+  summary,
+  locations,
+  metadata,
+  dvirReports,
+  onOpenDvir,
+  onOpenBol,
+  bolDocument,
+}) {
   if (!route || !summary || !locations) return null;
 
   return (
@@ -86,6 +95,24 @@ export default function SummaryBar({ route, summary, locations, metadata, dvirRe
           </div>
           <div className="summary-dashboard__dvir-sub">
             12/12 Safety Systems Passed · View DVIR →
+          </div>
+        </div>
+
+        <div
+          className="summary-dashboard__bol-card"
+          onClick={onOpenBol}
+          role="button"
+          tabIndex={0}
+          title="Click to view Commercial Bill of Lading (BOL) & Cargo Manifest"
+        >
+          <div className="summary-dashboard__bol-badge">
+            <span className="summary-dashboard__bol-icon">📋</span> BOL &amp; CARGO MANIFEST
+          </div>
+          <div className="summary-dashboard__bol-text">
+            {summary.cargo_weight_lbs ? `${Number(summary.cargo_weight_lbs).toLocaleString()} lbs` : "38,000 lbs"} ({summary.cargo_weight_tons || "19.0"} tons)
+          </div>
+          <div className="summary-dashboard__bol-sub">
+            Trailer: {summary.trailer_number || metadata?.trailer_number || "TRL-9201"} · View BOL →
           </div>
         </div>
       </div>

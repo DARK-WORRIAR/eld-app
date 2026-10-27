@@ -44,6 +44,11 @@ export default function TripForm({ onSubmit, loading }) {
     driver_name: "Marcus Vance",
     carrier_name: "Apex Logistics Freight, Inc.",
     truck_number: "TRK-840",
+    trailer_number: "TRL-9201",
+    bol_number: "",
+    commodity: "General Freight & Dry Goods",
+    cargo_weight_lbs: "38000",
+    seal_number: "SEAL-89104",
   });
 
   const [showMetadata, setShowMetadata] = useState(false);
@@ -114,6 +119,11 @@ export default function TripForm({ onSubmit, loading }) {
       driver_name: form.driver_name.trim() || "Commercial Driver",
       carrier_name: form.carrier_name.trim() || "Apex Logistics Freight, Inc.",
       truck_number: form.truck_number.trim() || "TRK-409",
+      trailer_number: form.trailer_number.trim() || "TRL-9201",
+      bol_number: form.bol_number.trim(),
+      commodity: form.commodity.trim() || "General Freight & Dry Goods",
+      cargo_weight_lbs: Number(form.cargo_weight_lbs) || 38000,
+      seal_number: form.seal_number.trim() || "SEAL-89104",
     });
   }
 
@@ -317,6 +327,60 @@ export default function TripForm({ onSubmit, loading }) {
                 onChange={(e) => updateField("truck_number", e.target.value)}
               />
             </label>
+            <label className="trip-form__field">
+              <span className="trip-form__label">Semi-Trailer Unit ID (49 CFR § 395.8(d)(11))</span>
+              <input
+                type="text"
+                className="trip-form__input"
+                placeholder="e.g. TRL-9201"
+                value={form.trailer_number}
+                onChange={(e) => updateField("trailer_number", e.target.value)}
+              />
+            </label>
+            <label className="trip-form__field">
+              <span className="trip-form__label">Bill of Lading / Manifest # (49 CFR § 395.8(d)(17))</span>
+              <input
+                type="text"
+                className="trip-form__input"
+                placeholder="Auto-generated if left blank"
+                value={form.bol_number}
+                onChange={(e) => updateField("bol_number", e.target.value)}
+              />
+            </label>
+            <label className="trip-form__field">
+              <span className="trip-form__label">Commodity &amp; Freight Description</span>
+              <input
+                type="text"
+                className="trip-form__input"
+                placeholder="e.g. General Freight & Dry Goods"
+                value={form.commodity}
+                onChange={(e) => updateField("commodity", e.target.value)}
+              />
+            </label>
+            <div className="trip-form__row">
+              <label className="trip-form__field trip-form__field--half">
+                <span className="trip-form__label">Cargo Weight (lbs)</span>
+                <input
+                  type="number"
+                  min="0"
+                  max="80000"
+                  step="500"
+                  className="trip-form__input"
+                  value={form.cargo_weight_lbs}
+                  onChange={(e) => updateField("cargo_weight_lbs", e.target.value)}
+                />
+              </label>
+              <label className="trip-form__field trip-form__field--half">
+                <span className="trip-form__label">Security Seal #</span>
+                <input
+                  type="text"
+                  className="trip-form__input"
+                  placeholder="e.g. SEAL-89104"
+                  value={form.seal_number}
+                  onChange={(e) => updateField("seal_number", e.target.value)}
+                />
+              </label>
+            </div>
           </div>
         )}
       </div>

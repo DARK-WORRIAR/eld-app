@@ -72,6 +72,43 @@ class TripInputSerializer(serializers.Serializer):
         default="TRK-409",
         trim_whitespace=True,
     )
+    trailer_number = serializers.CharField(
+        max_length=50,
+        required=False,
+        default="TRL-9201",
+        trim_whitespace=True,
+        help_text="Commercial trailer identifier (49 CFR § 395.8(d)(11)).",
+    )
+    bol_number = serializers.CharField(
+        max_length=60,
+        required=False,
+        allow_blank=True,
+        default="",
+        trim_whitespace=True,
+        help_text="Shipping document or Bill of Lading number (49 CFR § 395.8(d)(17)).",
+    )
+    commodity = serializers.CharField(
+        max_length=200,
+        required=False,
+        default="General Freight & Dry Goods",
+        trim_whitespace=True,
+        help_text="Commodity description / cargo type.",
+    )
+    cargo_weight_lbs = serializers.IntegerField(
+        required=False,
+        default=38000,
+        min_value=0,
+        max_value=80000,
+        help_text="Gross cargo weight in pounds (0 to 80,000 lbs).",
+    )
+    seal_number = serializers.CharField(
+        max_length=50,
+        required=False,
+        allow_blank=True,
+        default="SEAL-89104",
+        trim_whitespace=True,
+        help_text="Security tamper-evident cargo seal number.",
+    )
     adverse_conditions_claimed = serializers.BooleanField(
         required=False,
         default=False,
@@ -113,6 +150,11 @@ class TripSummarySerializer(serializers.ModelSerializer):
             "driver_name",
             "carrier_name",
             "truck_number",
+            "trailer_number",
+            "bol_number",
+            "commodity",
+            "cargo_weight_lbs",
+            "seal_number",
             "current_location",
             "pickup_location",
             "dropoff_location",
@@ -139,6 +181,11 @@ class TripDetailSerializer(serializers.ModelSerializer):
             "driver_name",
             "carrier_name",
             "truck_number",
+            "trailer_number",
+            "bol_number",
+            "commodity",
+            "cargo_weight_lbs",
+            "seal_number",
             "current_location",
             "pickup_location",
             "dropoff_location",

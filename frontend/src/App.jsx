@@ -7,6 +7,7 @@ import StopsTimeline from "./components/StopsTimeline.jsx";
 import DailyLogSheet from "./components/DailyLogSheet.jsx";
 import TripHistoryModal from "./components/TripHistoryModal.jsx";
 import DvirModal from "./components/DvirModal.jsx";
+import BolModal from "./components/BolModal.jsx";
 import { checkBackendHealth, downloadTripPdf, fetchRecentTrips, planTrip } from "./api.js";
 import "./App.css";
 
@@ -16,6 +17,7 @@ export default function App() {
   const [error, setError] = useState(null);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [isDvirOpen, setIsDvirOpen] = useState(false);
+  const [isBolOpen, setIsBolOpen] = useState(false);
   const [recentTripsCount, setRecentTripsCount] = useState(0);
   const [apiHealthy, setApiHealthy] = useState(true);
   const [selectedDayFilter, setSelectedDayFilter] = useState("all");
@@ -88,6 +90,7 @@ export default function App() {
         hasTripLoaded={Boolean(result)}
         onOpenHistory={() => setIsHistoryOpen(true)}
         onOpenDvir={() => setIsDvirOpen(true)}
+        onOpenBol={() => setIsBolOpen(true)}
         dvirCount={result?.dvir_reports?.length || 0}
         onPrintLogs={() => window.print()}
         onExportPdf={() => downloadTripPdf(result)}
@@ -158,6 +161,8 @@ export default function App() {
                 metadata={result.metadata}
                 dvirReports={result.dvir_reports}
                 onOpenDvir={() => setIsDvirOpen(true)}
+                onOpenBol={() => setIsBolOpen(true)}
+                bolDocument={result.bol_document}
               />
 
               <div className="no-print">
@@ -235,6 +240,13 @@ export default function App() {
         isOpen={isDvirOpen}
         onClose={() => setIsDvirOpen(false)}
         dvirReports={result?.dvir_reports}
+        metadata={result?.metadata}
+      />
+
+      <BolModal
+        isOpen={isBolOpen}
+        onClose={() => setIsBolOpen(false)}
+        bolDocument={result?.bol_document}
         metadata={result?.metadata}
       />
     </div>

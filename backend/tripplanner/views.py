@@ -21,6 +21,7 @@ from .serializers import (
 )
 from .services.geocode import LocationNotFoundError, geocode
 from .services.hos import build_daily_logs, build_dvir_reports, build_stops, simulate_trip
+from .services.manifest import build_bill_of_lading
 from .services.pdf_export import generate_mcs59_pdf
 from .services.routing import RouteCalculationError, RoutingError, get_route, point_at_distance
 
@@ -184,11 +185,33 @@ class PlanTripView(APIView):
                 },
             )
 
+            # Build Uniform Straight Bill of Lading (49 CFR § 395.8(d)(17) / 49 U.S.C. § 14706)
+            bol_document = build_bill_of_lading(
+                data=data,
+                locations={
+                    "current": current_pt,
+                    "pickup": pickup_pt,
+                    "dropoff": dropoff_pt,
+                },
+                start_time=start_dt,
+            )
+
+            trailer_num = data.get("trailer_number", "TRL-9201")
+            bol_num = bol_document["bol_number"]
+            commodity_desc = data.get("commodity", "General Freight & Dry Goods")
+            cargo_wt = int(data.get("cargo_weight_lbs") or 38000)
+            seal_num = bol_document["cargo_security"]["seal_number"]
+
             result: Dict[str, Any] = {
                 "metadata": {
                     "driver_name": data.get("driver_name", "Commercial Driver"),
                     "carrier_name": data.get("carrier_name", "Apex Logistics Freight, Inc."),
                     "truck_number": data.get("truck_number", "TRK-409"),
+                    "trailer_number": trailer_num,
+                    "bol_number": bol_num,
+                    "commodity": commodity_desc,
+                    "cargo_weight_lbs": cargo_wt,
+                    "seal_number": seal_num,
                     "dispatch_time": start_dt.isoformat(),
                     "regulations_standard": "49 CFR Part 395 Property-Carrying Driver Rules",
                     "adverse_conditions_claimed": adverse_claimed,
@@ -208,6 +231,7 @@ class PlanTripView(APIView):
                 "stops": stops,
                 "daily_logs": daily_logs,
                 "dvir_reports": dvir_reports,
+                "bol_document": bol_document,
                 "summary": {
                     "total_days": len(daily_logs),
                     "total_distance_miles": route["total_distance_miles"],
@@ -218,6 +242,11 @@ class PlanTripView(APIView):
                     "total_stops_count": len(stops),
                     "dvir_inspections_count": len(dvir_reports),
                     "dvir_status": "Satisfactory — All 12 Safety Systems Passed (49 CFR Part 396)",
+                    "trailer_number": trailer_num,
+                    "bol_number": bol_num,
+                    "commodity": commodity_desc,
+                    "cargo_weight_lbs": cargo_wt,
+                    "cargo_weight_tons": round(cargo_wt / 2000.0, 1),
                     "cycle_used_prior_hrs": data["current_cycle_used_hrs"],
                     "cycle_available_prior_hrs": round(70.0 - data["current_cycle_used_hrs"], 2),
                     "compliance_status": (
@@ -243,6 +272,11 @@ class PlanTripView(APIView):
                 driver_name=data.get("driver_name", "Commercial Driver"),
                 carrier_name=data.get("carrier_name", "Apex Logistics Freight, Inc."),
                 truck_number=data.get("truck_number", "TRK-409"),
+                trailer_number=trailer_num,
+                bol_number=bol_num,
+                commodity=commodity_desc,
+                cargo_weight_lbs=cargo_wt,
+                seal_number=seal_num,
                 current_location=data["current_location"],
                 pickup_location=data["pickup_location"],
                 dropoff_location=data["dropoff_location"],
